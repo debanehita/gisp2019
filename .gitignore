@@ -169,6 +169,7 @@ fabric.properties
 [Ss]cripts
 pyvenv.cfg
 .venv
+.venv2
 pip-selfcheck.json
 
 /.idea
