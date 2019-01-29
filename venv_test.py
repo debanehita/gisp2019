@@ -1,5 +1,5 @@
 """
-You can use this file to test if your standard GIS-related imports work
+You can use this file to test if your standard GIS-related imports work.
 """
 
 try:
