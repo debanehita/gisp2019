@@ -123,7 +123,7 @@ def main():
     SCREEN_HEIGHT = 600
     SQL = "select st_astext(geom) as geom_str, * from ctygeom where countyname like '%erry%' or countyname like '%imerick%' or countyname like '%ork%'"
     # CONN_STRING = "dbname=census2011 user=student password=student host=83.212.126.59 port=5432"
-    CONN_STRING = "dbname=census2011 user=stduser password=stduser host=mf2.dit.ie port=5432"
+    CONN_STRING = "dbname=census2011 user=stduser password=stduser host=mf2.dit.ie port=5436"
 
     my_data = get_db_data(CONN_STRING, SQL)
     if my_data:
