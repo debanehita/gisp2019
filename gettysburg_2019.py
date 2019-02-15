@@ -17,6 +17,28 @@ def get_stuff_from_net(url):
         return None
 
 
+def parse_text(speech, stopwords):
+    stopwords = stopwords.strip().split(",")
+    speech = speech.strip().split()
+    cleaned_speech = []
+    unique_words = set()
+    word_count = {}
+
+    for word in speech:
+        word = word.strip(string.punctuation)
+        if word.lower() in stopwords:
+            continue
+        if word:
+            cleaned_speech.append(word)
+            unique_words.add(word)
+
+            if word in word_count:
+                word_count[word] += 1
+            else:
+                word_count[word] = 1
+
+    return cleaned_speech, unique_words, word_count
+
 def main():
     """
     Tasks:
@@ -27,12 +49,24 @@ def main():
 
     :return: speech, stopwords
     """
-    speech_headers, speech = get_stuff_from_net(SPEECH_URL)
-    if speech:
-        print(speech)
-    stopword_headers, stopwords = get_stuff_from_net(STOPWORDS_URL)
-    if stopwords:
-        print(stopwords)
+    try:
+        speech_headers, speech = get_stuff_from_net(SPEECH_URL)
+        if speech_headers.status > 399:
+            raise Exception("ERROR: Bad response from {}. STATUS: {}".format(SPEECH_URL, speech_headers["status"]))
+        stopword_headers, stopwords = get_stuff_from_net(STOPWORDS_URL)
+        if stopword_headers.status > 399:
+            raise Exception("ERROR: Bad response from {}. STATUS: {}".format(STOPWORDS_URL, stopword_headers["status"]))
+
+        cleaned_speech, unique_words, word_count = parse_text(speech, stopwords)
+
+        print("Results\n{}\n{}\n\nNumber of words: {}\nNumber of unique words: {}\n\nWord Counts:".format(
+            SPEECH_URL, STOPWORDS_URL, len(cleaned_speech), len(unique_words)
+        ))
+        for k,v in word_count.items():
+            print("{}: {}".format(k,v))
+    except Exception as e:
+        print("{}".format(e))
+        quit(1)
 
 
 if __name__ == "__main__":
