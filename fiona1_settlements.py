@@ -1,7 +1,8 @@
 import gdal_workaround
 import fiona
-from fiona.crs import from_epsg
+from fiona.crs import from_epsg, from_string, to_string
 import pyproj
+import pyproj_transformation as pt
 
 SOURCE_EPSG = 29902
 DEST_EPSG = 4326
@@ -9,7 +10,7 @@ DEST_EPSG = 4326
 SOURCE_PROJ = pyproj.Proj(from_epsg(SOURCE_EPSG))
 DEST_PROJ = pyproj.Proj(from_epsg(DEST_EPSG))
 
-SOURCE = "settlements/stgeom.shp"
+SOURCE = "settlements/stgeom2.shp"
 NEW_SHP = ".cache/settlements_modified.shp"
 NEW_JSON = ".cache/settlements_modified.json"
 
@@ -24,12 +25,16 @@ def transform_coordinates(coordinates):
         for l2 in l1:
             # for pair in l2:
             x, y = l2
-            lon, lat = pyproj.transform(SOURCE_PROJ, DEST_PROJ, x, y)
+            lon, lat = pt.transform_coordinates(
+                "epsg:{}".format(SOURCE_EPSG),
+                "epsg:{}".format(DEST_EPSG),
+                (x, y)
+            )
             l1_out.append((lon, lat))
             # l1_out.append(l2_out)
         outgoing_geom["coordinates"].append(l1_out)
 
-    return outgoing_geom
+    return outgoing_geom["coordinates"]
 
 
 with fiona.open(SOURCE) as source:
@@ -40,7 +45,7 @@ with fiona.open(SOURCE) as source:
     print("*" * 50)
     print("File Type is {}".format(source.driver))
     print("Number of features is {}".format(len(source)))
-    print("SRS (EPSG) is {}".format(source.crs["init"].split(":")[1]))
+    print("SRS (EPSG) is {}".format(to_string(source.crs)))
     print("Schema is {}".format(source.schema))
     print("*" * 50)
 
@@ -65,7 +70,7 @@ with fiona.open(SOURCE) as source:
             feature["geometry"] = {}
             feature["geometry"]["type"] = item["geometry"]["type"]
             feature["geometry"]["coordinates"] = item["geometry"]["coordinates"]
-            # feature["geometry"]["coordinates"] = transformCoordinates(item["geometry"]["coordinates"])
+            # feature["geometry"]["coordinates"] = transform_coordinates(item["geometry"]["coordinates"])
             feature["properties"] = {}
 
             for i in sink_schema["properties"].keys():

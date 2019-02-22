@@ -1,3 +1,9 @@
+"""
+A sample program to illustrate text processing and some commom programming best practices.
+
+Mark Foley,
+Feb. 2019
+"""
 import string, httplib2
 
 # Variables to hold file URLs
