@@ -174,3 +174,9 @@ pip-selfcheck.json
 
 /.idea
 /.venv2
+/settlements/
+/gageom/
+/.httpcache/
+/counties/
+/data/
+/venv2/

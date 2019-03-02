@@ -9,16 +9,19 @@ import fiona
 from fiona.crs import from_string, from_epsg, to_string
 import pyproj_transformation as pt
 
-# FILE = ".cache/geonames_pop5000.shp"
-# FILE = ".cache/geonames_pop_5000.shp"
-FILE = "counties/ctygeom2.shp"
+# file = ".cache/geonames_pop5000.shp"
+# file = ".cache/geonames_pop_5000.shp"
+# file = "gageom/gageom_itm.shp"
+# file = "data/landuse2.gpkg"
+
+file = input("Enter a shapefile name in the format of path/to/file.shp ")
 
 
-with fiona.open(FILE, 'r') as source:
-    for feature in source:
-        print("{} {}"
-              .format(feature["properties"]["countyname"],
-                      feature["properties"]["total2011"]))
+with fiona.open(file, 'r') as source:
+    # for feature in source:
+    #     print("{} {}"
+    #           .format(feature["properties"]["countyname"],
+    #                   feature["properties"]["total2011"]))
 
     print("\n{}\n".format("=" * 20))
     print("There are {} features in source.".format(len(source)))
