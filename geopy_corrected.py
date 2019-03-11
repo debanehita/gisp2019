@@ -1,12 +1,12 @@
 import json, datetime
 from geopy.geocoders import Nominatim
-from urllib.request import Request
+# from urllib.request import Request
 geolocator = Nominatim()
 import pyproj
 from fiona.crs import from_epsg
 
 
-def geocode_address(address="", epsg=4326):
+def geocode_address(address=""):
     """
     Address geocoder using OSM Nominatim. Accepts 'address' string and returns a JSON response containing
     everything that the geocoder provides.
@@ -16,16 +16,11 @@ def geocode_address(address="", epsg=4326):
     """
     body = {}
 
-    # set the input projection of the original file.
-    input_projection = pyproj.Proj(init="epsg:{}".format(epsg))
-    # set the projection for the output file.
-    output_projection = pyproj.Proj(init="epsg:4326")
-
     try:
         if not address:
             raise Exception("No address supplied")
 
-        loc = get_geolocator().geocode(address, addressdetails=True, geometry="geojson")
+        loc = geolocator.geocode(address, addressdetails=True)
 
         if not loc:
             raise Exception("No result found for '{}'".format(address))
@@ -52,6 +47,7 @@ def geocode_location(location="", epsg=4326):
     JSON response containing everything that the geocoder provides.
 
     :param location: string in lat, lon
+    :param epsg: EPSG code of input coordinates, these will be converted to EPSG:4326
     :return: JSON response
     """
     body = {}
@@ -72,7 +68,7 @@ def geocode_location(location="", epsg=4326):
         else:
             lon, lat = float(location.strip().split(",")[1]), float(location.strip().split(",")[0])
 
-        loc = get_geolocator().reverse("{}, {}".format(lat, lon))
+        loc = geolocator.reverse("{}, {}".format(lat, lon))
 
         if not loc:
             raise Exception("No result found for '{}'".format(location))
@@ -92,30 +88,30 @@ def geocode_location(location="", epsg=4326):
 
     return response
 
-
-def get_geolocator():
-    """
-    Horrible hack to get around spurious geopy error (bugs #262 and #185):
-    "geocoders.base.Geocoder._call_geocoder() does not sent HTTP headers breaking Nominatim usage"
-
-    :return: corrected geolocator object
-    """
-
-    geolocator = Nominatim()
-
-    requester = geolocator.urlopen
-
-    def requester_hack(req, **kwargs):
-        req = Request(url=req, headers=geolocator.headers)
-        return requester(req, **kwargs)
-
-    geolocator.urlopen = requester_hack
-
-    return geolocator
+## Looks like this has been fixed in the latest version of geopy - MF, March 2019
+# def get_geolocator():
+#     """
+#     Horrible hack to get around spurious geopy error (bugs #262 and #185):
+#     "geocoders.base.Geocoder._call_geocoder() does not sent HTTP headers breaking Nominatim usage"
+#
+#     :return: corrected geolocator object
+#     """
+#
+#     geolocator = Nominatim()
+#
+#     requester = geolocator.urlopen
+#
+#     def requester_hack(req, **kwargs):
+#         req = Request(url=req, headers=geolocator.headers)
+#         return requester(req, **kwargs)
+#
+#     geolocator.urlopen = requester_hack
+#
+#     return geolocator
 
 
 def main():
-    my_address = "Glasnevin, Dublin 11, Ireland"
+    my_address = "Drumcondra, Dublin, Ireland"
     result = geocode_address(my_address)
     print(result)
     my_location = "53.33, -6.33"
